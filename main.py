@@ -4,6 +4,10 @@ from scipy.stats import mode
 import pyray as pr
 import config
 from rubik import Rubik
+import alphacube
+from CubeEditor import CubeEditor
+import tkinter as tk
+from tkinter import simpledialog
 
 
 # Function to assign numeric codes to colors based on HSV values
@@ -71,6 +75,7 @@ def draw_grid(frame, cube_size):
 # Function to display all six faces in a cube net layout with borders and black labels
 
 
+
 # Main function for capturing and processing the Rubik's cube faces
 color_map = {0: 'W', 1: 'R', 2: 'O', 3: 'Y', 4: 'G', 5: 'B', -1: '?'}
 
@@ -125,22 +130,19 @@ def main():
     # Display saved cube data and all faces
     if len(cube_faces) == 6:
 
+        # Dodaj tę funkcję do głównego bloku main:
+        root = tk.Tk()
+        root.title("Rubik's Cube Editor")
+        editor = CubeEditor(root, cube_faces)
+        root.mainloop()
+
         pr.init_window(config.window_w, config.window_w, "Kostka")
 
         rubik_cube = Rubik(cube_faces)
 
-       # rotation_queue = [config.rubik_moves['U\''],
-#
- #                         config.rubik_moves['B'],
-  #                        config.rubik_moves['R'],
-   #                       config.rubik_moves['L'],
-    #                      config.rubik_moves['B']]
-
         pr.set_target_fps(config.fps)
 
         while not pr.window_should_close():
-
-    #        rotation_queue, _ = rubik_cube.handle_rotation(rotation_queue)
 
             pr.update_camera(config.camera, pr.CameraMode.CAMERA_THIRD_PERSON)
 
