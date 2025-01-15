@@ -61,7 +61,7 @@ class Cube:
 
 
 class Rubik:
-    def __init__(self, cube_faces) -> None:
+    def __init__(self, cube_faces, rubik_size) -> None:
 
         self.cubes = []
 
@@ -72,9 +72,9 @@ class Rubik:
         self.segment = None
         self.target_rotation = 0
 
-        self.generate_rubik(2, cube_faces)
+        self.generate_rubik(2, cube_faces, rubik_size)
 
-    def generate_rubik(self, size, cube_faces):
+    def generate_rubik(self, size, cube_faces, rubik_size):
 
         reordered_faces = [
             cube_faces[0],  # front -> front
@@ -106,15 +106,15 @@ class Rubik:
         size_z = size * 0.9, size * 0.9, size * 0.1
         size_x = size * 0.9, size * 0.1, size * 0.9
         size_y = size * 0.1, size * 0.9, size * 0.9
-        for x in range(3):
-            for y in range(3):
-                for z in range(3):
+        for x in range(rubik_size):
+            for y in range(rubik_size):
+                for z in range(rubik_size):
                     face_colors = [
-                        colors[reordered_faces[0][y][x]] if z == 2 else pr.BLACK,  # front
+                        colors[reordered_faces[0][y][x]] if z == rubik_size-1 else pr.BLACK,  # front
                         colors[reordered_faces[1][y][x]] if z == 0 else pr.BLACK,  # back
-                        colors[reordered_faces[2][y][z]] if x == 2 else pr.BLACK,  # right
+                        colors[reordered_faces[2][y][z]] if x == rubik_size-1 else pr.BLACK,  # right
                         colors[reordered_faces[3][y][z]] if x == 0 else pr.BLACK,  # left
-                        colors[reordered_faces[4][z][x]] if y == 2 else pr.BLACK,  # top
+                        colors[reordered_faces[4][z][x]] if y == rubik_size-1 else pr.BLACK,  # top
                         colors[reordered_faces[5][z][x]] if y == 0 else pr.BLACK  # bottom
                     ]
 
@@ -169,7 +169,7 @@ class Rubik:
             self.is_rotating = True
 
         if self.is_rotating:
-            if (self.rotation_angle != self.target_rotation):
+            if self.rotation_angle != self.target_rotation:
                 diff = abs(self.target_rotation - self.rotation_angle)
                 delta_angle = min(np.radians(1), diff)
 
@@ -182,26 +182,26 @@ class Rubik:
                 if animation_step is not None:
                     animation_step += 1
 
-            for id, cube in enumerate(self.cubes):
+            for i, cube in enumerate(self.cubes):
                 axis_index = np.nonzero(self.rotation_axis)[0][0]
 
-                if id in self.segment:
+                if i in self.segment:
 
                     for part_id, _ in enumerate(cube):
 
                         if self.target_rotation > 0:
-                            self.cubes[id][part_id].rotate(axis_index, delta_angle)
+                            self.cubes[i][part_id].rotate(axis_index, delta_angle)
 
                         else:
-                            self.cubes[id][part_id].rotate(axis_index, -delta_angle)
+                            self.cubes[i][part_id].rotate(axis_index, -delta_angle)
 
-                        pos_x, pos_y, pos_z = self.cubes[id][part_id].center
+                        pos_x, pos_y, pos_z = self.cubes[i][part_id].center
 
                         translation = pr.matrix_translate(pos_x, pos_y, pos_z)
-                        rota, angle = self.cubes[id][part_id].get_rotation_axis_angle()
+                        rota, angle = self.cubes[i][part_id].get_rotation_axis_angle()
                         rotation = pr.matrix_rotate(rota, np.radians(angle))
                         transform = pr.matrix_multiply(rotation, translation)
-                        self.cubes[id][part_id].model.transform = transform
+                        self.cubes[i][part_id].model.transform = transform
 
         else:
             self.is_rotating = True

@@ -51,23 +51,26 @@ class CubeEditor:
             button_row = []
             for col_idx, color_code in enumerate(row):
                 btn = tk.Button(self.grid_frame, bg=color_map[color_code], width=5, height=2,
-                                command=lambda r=row_idx, c=col_idx: self.edit_color(r, c))
+                                command=lambda r=row_idx, c=col_idx: self.open_color_picker(r, c))
                 btn.grid(row=row_idx, column=col_idx)
                 button_row.append(btn)
             self.buttons.append(button_row)
 
-    def edit_color(self, row, col):
-        """Zmienia kolor wybranej komórki"""
-        current_color = self.buttons[row][col].cget("bg")
-        new_color = simpledialog.askstring("Edit Color",
-                                           f"Current color is {current_color}. Enter new color (white/red/orange/yellow/green/blue/gray):")
+    def open_color_picker(self, row, col):
+        """Otwiera wybór koloru dla wybranej komórki"""
+        picker = tk.Toplevel(self.root)
+        picker.title("Choose Color")
 
-        if new_color in reverse_color_map:
-            new_color_code = reverse_color_map[new_color]
-            self.cube_faces[self.current_face][row][col] = new_color_code
-            self.buttons[row][col].config(bg=new_color)
-        else:
-            tk.messagebox.showerror("Invalid Color", "Please enter a valid color.")
+        def set_color(color_code):
+            self.cube_faces[self.current_face][row][col] = color_code
+            self.buttons[row][col].config(bg=color_map[color_code])
+            picker.destroy()
+
+        for color_code, color_name in color_map.items():
+            if color_code != -1:  # Pomijanie koloru szarego (nieznany)
+                btn = tk.Button(picker, bg=color_name, width=10, height=2,
+                                command=lambda c=color_code: set_color(c))
+                btn.pack(pady=5)
 
     def previous_face(self):
         """Przełącza na poprzednią ścianę"""
@@ -86,3 +89,5 @@ class CubeEditor:
     def save_and_exit(self):
         """Zamyka okno i zapisuje zmiany"""
         self.root.destroy()
+
+
